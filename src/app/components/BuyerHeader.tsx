@@ -1,23 +1,48 @@
-import { Search as SearchIcon, User, Calendar, Settings, LogOut, UserCircle } from "lucide-react";
-import { Link } from "react-router";
+import { Search as SearchIcon, User, Calendar, LogOut, LogIn } from "lucide-react";
+import { Link, useNavigate } from "react-router";
+import { useAuth } from "../auth/AuthContext";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "./ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 interface BuyerHeaderProps {
   showSearch?: boolean;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
 }
 
-export function BuyerHeader({ showSearch = true }: BuyerHeaderProps) {
+export function BuyerHeader({
+  showSearch = true,
+  searchValue = "",
+  onSearchChange,
+}: BuyerHeaderProps) {
+  const { profile, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleSignOut() {
+    await signOut();
+    navigate("/", { replace: true });
+  }
+
   return (
     <div className="border-b px-6 py-4 flex items-center gap-4">
-      <Link to="/" className="text-xl font-semibold">FinditWithFahad</Link>
+      <Link to="/" className="text-xl font-semibold">
+        FinditWithFahad
+      </Link>
       {showSearch && (
         <div className="flex-1 max-w-xl relative">
           <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
-          <Input 
+          <Input
             placeholder="Search by address, community..."
             className="pl-10"
+            value={searchValue}
+            onChange={(event) => onSearchChange?.(event.target.value)}
           />
         </div>
       )}
@@ -38,31 +63,23 @@ export function BuyerHeader({ showSearch = true }: BuyerHeaderProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="px-3 py-2 border-b">
-              <div className="font-semibold">John Smith</div>
-              <div className="text-xs text-gray-500">john.smith@email.com</div>
+              <div className="font-semibold">{profile?.fullName || "Guest"}</div>
+              <div className="text-xs text-gray-500">
+                {profile?.email || "Sign in to book appointments and save activity"}
+              </div>
             </div>
-            <div className="px-3 py-2 bg-blue-50 border-b">
-              <div className="text-xs font-medium text-blue-900 mb-1">Example Profiles</div>
-              <div className="text-xs text-blue-700">View sample buyer/seller profiles</div>
-            </div>
-            <DropdownMenuItem onClick={() => window.location.href = '/admin/buyer-profile'}>
-              <UserCircle className="size-4 mr-2" />
-              Buyer Profile Example
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => window.location.href = '/admin/seller-profile'}>
-              <UserCircle className="size-4 mr-2" />
-              Seller Profile Example
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Settings className="size-4 mr-2" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => window.location.href = '/'}>
-              <LogOut className="size-4 mr-2" />
-              Log Out
-            </DropdownMenuItem>
+            {profile ? (
+              <DropdownMenuItem onClick={() => void handleSignOut()}>
+                <LogOut className="size-4 mr-2" />
+                Log Out
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={() => navigate("/login")}>
+                <LogIn className="size-4 mr-2" />
+                Sign In
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

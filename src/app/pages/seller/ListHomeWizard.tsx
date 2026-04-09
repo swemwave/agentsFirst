@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router";
-import { ArrowLeft, Check, Upload } from "lucide-react";
+import { Link, useNavigate } from "react-router";
+import { ArrowLeft, Check, Upload, LogOut } from "lucide-react";
+import { useAuth } from "../../auth/AuthContext";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -9,23 +10,38 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 
 export default function ListHomeWizard() {
   const [step, setStep] = useState(1);
+  const { profile, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const canProceed = () => {
     // Simplified - in real app would validate form fields
     return true;
   };
 
+  async function handleSignOut() {
+    await signOut();
+    navigate("/", { replace: true });
+  }
+
   return (
     <div className="h-screen overflow-auto bg-gray-50">
-      {/* Top Bar */}
       <div className="border-b px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
+          <Link to="/search" className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
             <ArrowLeft className="size-4" />
             Back
           </Link>
           <Link to="/" className="text-xl font-semibold">FinditWithFahad</Link>
-          <div className="w-24" />
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:block text-right">
+              <div className="text-sm font-medium text-gray-900">{profile?.fullName || "Seller"}</div>
+              <div className="text-xs text-gray-500">{profile?.email}</div>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => void handleSignOut()}>
+              <LogOut className="size-4 mr-2" />
+              Log Out
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -257,8 +273,8 @@ export default function ListHomeWizard() {
                 </div>
 
                 <div className="flex gap-3 justify-center">
-                  <Link to="/seller/dashboard">
-                    <Button>View Dashboard</Button>
+                  <Link to="/search">
+                    <Button>Browse Listings</Button>
                   </Link>
                   <Link to="/">
                     <Button variant="outline">Back to Home</Button>

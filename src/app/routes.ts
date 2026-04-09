@@ -1,4 +1,6 @@
+import { createElement } from "react";
 import { createBrowserRouter } from "react-router";
+import { ProtectedRoute, PublicOnlyRoute } from "./auth/RouteGuards";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
@@ -8,7 +10,6 @@ import Wishlist from "./pages/buyer/Wishlist";
 import AppointmentScheduler from "./pages/buyer/AppointmentScheduler";
 import Calendar from "./pages/buyer/Calendar";
 import ListHomeWizard from "./pages/seller/ListHomeWizard";
-import SellerDashboard from "./pages/seller/SellerDashboard";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminListings from "./pages/admin/Listings";
 import AdminBookmarks from "./pages/admin/Bookmarks";
@@ -22,15 +23,6 @@ export const router = createBrowserRouter([
     Component: Landing,
   },
   {
-    path: "/login",
-    Component: Login,
-  },
-  {
-    path: "/signup",
-    Component: SignUp,
-  },
-  // Buyer routes
-  {
     path: "/search",
     Component: BuyerSearch,
   },
@@ -39,52 +31,79 @@ export const router = createBrowserRouter([
     Component: PropertyDetails,
   },
   {
-    path: "/wishlist",
-    Component: Wishlist,
+    element: createElement(PublicOnlyRoute),
+    children: [
+      {
+        path: "/login",
+        Component: Login,
+      },
+      {
+        path: "/signup",
+        Component: SignUp,
+      },
+    ],
   },
   {
-    path: "/appointments/new",
-    Component: AppointmentScheduler,
+    element: createElement(ProtectedRoute, {
+      allowedRoles: ["buyer", "seller"],
+    }),
+    children: [
+      {
+        path: "/wishlist",
+        Component: Wishlist,
+      },
+      {
+        path: "/appointments/new",
+        Component: AppointmentScheduler,
+      },
+      {
+        path: "/calendar",
+        Component: Calendar,
+      },
+    ],
   },
   {
-    path: "/calendar",
-    Component: Calendar,
-  },
-  // Seller routes
-  {
-    path: "/list-home",
-    Component: ListHomeWizard,
-  },
-  {
-    path: "/seller/dashboard",
-    Component: SellerDashboard,
-  },
-  // Admin routes
-  {
-    path: "/admin",
-    Component: AdminDashboard,
+    element: createElement(ProtectedRoute, {
+      allowedRoles: ["seller"],
+    }),
+    children: [
+      {
+        path: "/list-home",
+        Component: ListHomeWizard,
+      },
+    ],
   },
   {
-    path: "/admin/listings",
-    Component: AdminListings,
+    element: createElement(ProtectedRoute, {
+      allowedRoles: ["admin"],
+    }),
+    children: [
+      {
+        path: "/admin",
+        Component: AdminDashboard,
+      },
+      {
+        path: "/admin/listings",
+        Component: AdminListings,
+      },
+      {
+        path: "/admin/appointments",
+        Component: AdminAppointments,
+      },
+      {
+        path: "/admin/bookmarks",
+        Component: AdminBookmarks,
+      },
+      {
+        path: "/admin/buyer-profile",
+        Component: BuyerProfile,
+      },
+      {
+        path: "/admin/seller-profile",
+        Component: SellerProfile,
+      },
+    ],
   },
-  {
-    path: "/admin/appointments",
-    Component: AdminAppointments,
-  },
-  {
-    path: "/admin/bookmarks",
-    Component: AdminBookmarks,
-  },
-  {
-    path: "/admin/buyer-profile",
-    Component: BuyerProfile,
-  },
-  {
-    path: "/admin/seller-profile",
-    Component: SellerProfile,
-  },
-  // Catch-all route
   {
     path: "*",
     Component: Landing,

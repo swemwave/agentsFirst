@@ -219,7 +219,10 @@ export default function PropertyDetails() {
                   <Heart className="size-4 mr-2" />
                   Save to Wishlist
                 </Button>
-                <Link to="/appointments/new">
+                <Link
+                  to="/appointments/new"
+                  state={{ propertyAddress: listing.address, purpose: "buying" }}
+                >
                   <Button variant="outline" className="w-full" size="lg">
                     <Calendar className="size-4 mr-2" />
                     Request Viewing
